@@ -13,17 +13,44 @@ const Button = ({text,handleClick}) => (
     </button>
 )
 
-const Clicks = ({text,clicks}) => (
-  <p>
-    {text} {clicks}
-  </p>
+const Buttons = ({good,neutral,bad,setGood,setNeutral,setBad}) => (
+    <div>
+      <Button text="good" handleClick={() => setGood(good + 1)} />
+      <Button text="neutral" handleClick={() => setNeutral(neutral + 1)} />
+      <Button text="bad" handleClick={() => setBad(bad + 1)} />
+    </div>
 )
 
-const Statistics = ({text,stat}) =>  (
+const Statistic = ({text,stat}) => (
   <p>
     {text} {stat}
   </p>
 )
+
+const Statistics = ({good,neutral,bad}) => {  
+  const all = good + neutral + bad
+  const average = (good - bad) / all
+  const positive = `${good / all * 100} %`
+
+  if ( good > 0 || neutral > 0 || bad > 0) {
+    return  (
+      <div>
+        <Statistic text="good" stat={good} />
+        <Statistic text="neutral" stat={neutral} />
+        <Statistic text="bad" stat={bad} />  
+        <Statistic text="all" stat={all} />
+        <Statistic text="average" stat={average} />
+        <Statistic text="positive" stat={positive} />
+      </div>
+    )
+  }
+
+  return (
+    <p>
+      No feedback given
+    </p>
+  )  
+}
 
 
 const App = () => {
@@ -32,31 +59,15 @@ const App = () => {
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
 
-  const all = () => good + neutral + bad
-
-  const divider = all()
-
-  const average = () => (good - bad) / divider
-
-  const positive = () => `${good / divider * 100} %`
-
   return (
     <>
       <Header text="give feedback" />
 
-      <Button text="good" handleClick={() => setGood(good + 1)} />
-      <Button text="neutral" handleClick={() => setNeutral(neutral + 1)} />
-      <Button text="bad" handleClick={() => setBad(bad + 1)} />
+      <Buttons good={good} setGood={setGood} neutral={neutral} setNeutral={setNeutral} bad={bad} setBad={setBad} />
 
       <Header text="statistics" />
 
-      <Clicks text="good" clicks={good} />
-      <Clicks text="neutral" clicks={neutral} />
-      <Clicks text="bad" clicks={bad} />
-      
-      <Statistics text="all" stat={all()} />
-      <Statistics text="average" stat={average()} />
-      <Statistics text="positive" stat={positive()}/>
+      <Statistics good={good} neutral={neutral} bad={bad} />
     </>
   )
 }
