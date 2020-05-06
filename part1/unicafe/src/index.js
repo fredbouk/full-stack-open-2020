@@ -22,9 +22,10 @@ const Buttons = ({good,neutral,bad,setGood,setNeutral,setBad}) => (
 )
 
 const Statistic = ({text,stat}) => (
-  <p>
-    {text} {stat}
-  </p>
+  <tr>
+    <td>{text}</td> 
+    <td>{stat}</td>
+  </tr>
 )
 
 const Statistics = ({good,neutral,bad}) => {  
@@ -34,14 +35,14 @@ const Statistics = ({good,neutral,bad}) => {
 
   if ( good > 0 || neutral > 0 || bad > 0) {
     return  (
-      <div>
+      <table>
         <Statistic text="good" stat={good} />
         <Statistic text="neutral" stat={neutral} />
         <Statistic text="bad" stat={bad} />  
         <Statistic text="all" stat={all} />
         <Statistic text="average" stat={average} />
         <Statistic text="positive" stat={positive} />
-      </div>
+      </table>
     )
   }
 
