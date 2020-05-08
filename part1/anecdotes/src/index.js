@@ -13,9 +13,9 @@ const Anecdote = ({anecdote}) => (
   </p>
 )
 
-const Votes = ({votes,selected}) => (
+const Votes = ({votes}) => (
   <p>
-    has {votes[selected]} votes
+    has {votes} votes
   </p>
 )
 
@@ -48,7 +48,7 @@ const Most = ({votes}) => {
   return (
     <>
       <Anecdote anecdote={anecdotes[votes.indexOf(mostVotes)]} />
-      <Votes votes={votes} selected={votes.indexOf(mostVotes)} />
+      <Votes votes={mostVotes} />
     </>
   )
 
@@ -63,7 +63,7 @@ const App = (props) => {
     <div>
       <Header text="Anecdote of the day" />
       <Anecdote anecdote={props.anecdotes[selected]} />
-      <Votes votes={votes} selected={selected} />
+      <Votes votes={votes[selected]} />
       <Buttons setSelected={setSelected} setVotes={setVotes} votes={votes} selected={selected}/>
       <Header text="Anecdote with most votes" />
       <Most votes={votes} />
