@@ -7,19 +7,44 @@ const Anecdote = ({anecdote}) => (
   </p>
 )
 
-const Button = ({setSelected}) => (
-  <button onClick={() => setSelected(Math.floor(Math.random() * 6))}>
-    random anecdote
+const Votes = ({votes,selected}) => (
+  <p>
+    has {votes[selected]} votes
+  </p>
+)
+
+const Button = ({text,handleClick}) => (
+  <button onClick={handleClick}>
+    {text}
   </button>
 )
 
+const Buttons = ({setSelected,setVotes,selected,votes}) => {
+
+  const updateVotes = () => {
+    const copyOfVotes = [...votes]
+    copyOfVotes[selected] += 1
+    setVotes(copyOfVotes)
+  }
+  
+  return (
+      <div>
+        <Button text="vote" handleClick={() => updateVotes()} />
+        <Button text="random anecdote" handleClick={() => setSelected(Math.floor(Math.random() * 6))} />
+      </div>
+  )
+}
+
 const App = (props) => {
   const [selected, setSelected] = useState(0)
+                          //creates state as an array with six elements of 0
+  const [votes,setVotes] = useState(new Array(6+1).join('0').split('').map(parseFloat))
 
   return (
     <div>
       <Anecdote anecdote={props.anecdotes[selected]} />
-      <Button setSelected={setSelected} />
+      <Votes votes={votes} selected={selected} />
+      <Buttons setSelected={setSelected} setVotes={setVotes} votes={votes} selected={selected}/>
     </div>
   )
 }
