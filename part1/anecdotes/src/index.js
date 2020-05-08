@@ -1,6 +1,12 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
+const Header = ({text}) => (
+  <h1>
+    {text}
+  </h1>
+)
+
 const Anecdote = ({anecdote}) => (
   <p>
     {anecdote}
@@ -35,6 +41,19 @@ const Buttons = ({setSelected,setVotes,selected,votes}) => {
   )
 }
 
+const Most = ({votes}) => {
+
+  const mostVotes = Math.max(...votes)
+
+  return (
+    <>
+      <Anecdote anecdote={anecdotes[votes.indexOf(mostVotes)]} />
+      <Votes votes={votes} selected={votes.indexOf(mostVotes)} />
+    </>
+  )
+
+}
+
 const App = (props) => {
   const [selected, setSelected] = useState(0)
                           //creates state as an array with six elements of 0
@@ -42,9 +61,12 @@ const App = (props) => {
 
   return (
     <div>
+      <Header text="Anecdote of the day" />
       <Anecdote anecdote={props.anecdotes[selected]} />
       <Votes votes={votes} selected={selected} />
       <Buttons setSelected={setSelected} setVotes={setVotes} votes={votes} selected={selected}/>
+      <Header text="Anecdote with most votes" />
+      <Most votes={votes} />
     </div>
   )
 }
