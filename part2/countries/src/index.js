@@ -2,6 +2,32 @@ import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import axios from 'axios'
 
+const Weather = ({ capital }) => {
+  const [weatherData, setWeatherData] = useState()
+  const apiKey = process.env.REACT_APP_API_KEY
+
+  useEffect(() => {
+    axios
+      .get(`http://api.weatherstack.com/current?access_key=${apiKey}&query=${capital}`)
+      .then(response =>
+        setWeatherData(response.data)
+      )
+  }, [capital, apiKey])
+
+  if (weatherData) {
+    return (
+      <div>
+        <h3>Weather in {capital}</h3>
+        <p><b>Temperature:</b> {weatherData.current.temperature}&deg; Celsius</p>
+        <img src={weatherData.current.weather_icons} alt='Weather Icon' />
+        <p><b>Wind:</b> {weatherData.current.wind_speed} mph direction {weatherData.current.wind_dir}</p>
+      </div>
+    )
+  }
+
+  return <p>Loading weather data</p>
+}
+
 const Country = ({ filteredCountries }) => {
   return (
     <div>
@@ -14,6 +40,8 @@ const Country = ({ filteredCountries }) => {
         {filteredCountries[0].languages.map(language => <li key={language.iso639_1}>{language.name}</li>)}
       </ul>
       <img src={filteredCountries[0].flag} alt='Contry Flag' width='150' height='100' />
+
+      <Weather capital={filteredCountries[0].capital} />
     </div>
   )
 }
@@ -32,7 +60,7 @@ const Countries = ({ filteredCountries, setFilter }) => {
   )
 }
 
-const View = ({ filteredCountries, setFilter }) => {
+const Info = ({ filteredCountries, setFilter }) => {
   if (filteredCountries.length > 10) {
     return (
       <div>Too many matches, please specify</div>
@@ -67,7 +95,7 @@ const App = () => {
   return (
     <div>
       Find countries: <input value={filter} onChange={handleFilterChange} />
-      <View filteredCountries={filteredCountries} setFilter={setFilter} />
+      <Info filteredCountries={filteredCountries} setFilter={setFilter} />
     </div>
   )
 }
