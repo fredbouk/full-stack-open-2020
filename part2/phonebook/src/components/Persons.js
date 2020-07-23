@@ -1,9 +1,9 @@
 import React from 'react'
 import Entry from './Entry'
 
-const Persons = ({ notesToShow }) => (
+const Persons = ({ personsToShow, setPersons, persons }) => (
   <ul>
-    {notesToShow.map(person => <Entry key={person.name} name={person.name} number={person.number} />)}
+    {personsToShow.map(person => <Entry key={person.id} id={person.id} name={person.name} number={person.number} setPersons={setPersons} persons={persons} />)}
   </ul>
 )
 

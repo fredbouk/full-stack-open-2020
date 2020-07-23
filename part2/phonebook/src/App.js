@@ -24,7 +24,7 @@ const App = () => {
 
   const regex = new RegExp(`.*${newFilter}`, 'i')
 
-  const notesToShow = newFilter
+  const personsToShow = newFilter
     ? persons.filter(obj => regex.test(obj.name))
     : persons
 
@@ -41,8 +41,16 @@ const App = () => {
       number: newNumber
     }
 
-    if (persons.find(ojb => ojb.name === newName)) {
-      window.alert(`${newName} is already added to phonebook`)
+    const existingPerson = persons.find(ojb => ojb.name.toLowerCase() === newName.toLowerCase())
+    const updatePerson = { ...existingPerson, number: newNumber }
+
+    if (existingPerson) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        personService.update(updatePerson.id, updatePerson)
+          .then(updatedPerson => setPersons(persons.map(person => person.id !== updatePerson.id ? person : updatedPerson)))
+        setNewName('')
+        setNewNumber('')
+      }
     } else {
       personService.create(personObject)
         .then(returnedPerson => {
@@ -71,7 +79,7 @@ const App = () => {
 
       <h3>Entries</h3>
 
-      <Persons notesToShow={notesToShow} />
+      <Persons personsToShow={personsToShow} setPersons={setPersons} persons={persons} />
     </div>
   )
 }
