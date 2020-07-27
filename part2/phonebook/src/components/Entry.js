@@ -1,11 +1,16 @@
 import React from 'react'
 import personService from '../services/resources'
 
-const Entry = ({ id, name, number, setPersons, persons }) => {
+const Entry = ({ id, name, number, setPersons, persons, setNotification }) => {
   const removeAndUpdate = (id) => {
     if (window.confirm(`Delete ${name} ?`)) {
       personService.del(id)
       setPersons(persons.filter(person => person.id !== id))
+
+      setNotification(`Deleted ${name}`)
+      setTimeout(() => {
+        setNotification('')
+      }, 3000)
     }
   }
 
