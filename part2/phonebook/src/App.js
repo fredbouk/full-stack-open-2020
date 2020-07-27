@@ -4,6 +4,7 @@ import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import personService from './services/resources'
 import Notification from './components/Notification'
+import ErrorNotification from './components/ErrorNotification'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -11,12 +12,20 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [notification, setNotification] = useState('')
+  const [errorNotification, setErrorNotification] = useState('')
 
   useEffect(() => {
     personService
       .getAll()
       .then(initialPersons => {
         setPersons(initialPersons)
+      })
+      .catch(error => {
+        console.log(error)
+        setErrorNotification('Could not connect to server')
+        setTimeout(() => {
+          setErrorNotification('')
+        }, 4000)
       })
   }, [])
 
@@ -49,13 +58,24 @@ const App = () => {
     if (existingPerson) {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
         personService.update(updatePerson.id, updatePerson)
-          .then(updatedPerson => setPersons(persons.map(person => person.id !== updatePerson.id ? person : updatedPerson)))
-        setNewName('')
-        setNewNumber('')
-        setNotification(`Updated ${updatePerson.name}'s number`)
-        setTimeout(() => {
-          setNotification('')
-        }, 4000)
+          .then(updatedPerson => {
+            setPersons(persons.map(person => person.id !== updatePerson.id ? person : updatedPerson))
+            setNewName('')
+            setNewNumber('')
+            setNotification(`Updated ${updatePerson.name}'s number`)
+            setTimeout(() => {
+              setNotification('')
+            }, 4000)
+          }
+          )
+          .catch(error => {
+            console.log(error)
+            setErrorNotification(`Could not update number! ${updatePerson.name} is deleted from the server`)
+            setTimeout(() => {
+              setErrorNotification('')
+              setPersons(persons.filter(person => person.id !== updatePerson.id))
+            }, 4000)
+          })
       }
     } else {
       personService.create(personObject)
@@ -66,7 +86,14 @@ const App = () => {
           setNotification(`Added ${returnedPerson.name}`)
           setTimeout(() => {
             setNotification('')
-          }, 3000)
+          }, 4000)
+        })
+        .catch(error => {
+          console.log(error)
+          setErrorNotification(`Failed to add ${personObject.name}. Could not connect to server`)
+          setTimeout(() => {
+            setErrorNotification('')
+          }, 4000)
         })
     }
   }
@@ -76,6 +103,7 @@ const App = () => {
       <h2>Phonebook</h2>
 
       <Notification message={notification} />
+      <ErrorNotification message={errorNotification} />
 
       <Filter newFilter={newFilter} handleFilterChange={handleFilterChange} />
 
@@ -91,7 +119,13 @@ const App = () => {
 
       <h3>Entries</h3>
 
-      <Persons personsToShow={personsToShow} setPersons={setPersons} persons={persons} setNotification={setNotification} />
+      <Persons
+        personsToShow={personsToShow}
+        setPersons={setPersons}
+        persons={persons}
+        setNotification={setNotification}
+        setErrorNotification={setErrorNotification}
+      />
     </div>
   )
 }
