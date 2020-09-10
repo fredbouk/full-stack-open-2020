@@ -7,6 +7,7 @@ const totalLikes = (blogs) => {
 }
 
 const favouriteBlog = (blogs) => {
+  // Sort the blogs in the array by likes in descending order and select the blog with highest likes:
   const favourite = blogs.sort((a, b) => b.likes - a.likes)[0]
 
   return {
