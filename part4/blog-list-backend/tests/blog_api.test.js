@@ -6,7 +6,7 @@ const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
 
-const initiaBlogs = [
+const initialBlogs = [
   {
     title: 'Blog 1',
     author: 'Blogger 1',
@@ -24,10 +24,10 @@ const initiaBlogs = [
 beforeEach(async () => {
   await Blog.deleteMany({})
 
-  let blogObject = new Blog(initiaBlogs[0])
+  let blogObject = new Blog(initialBlogs[0])
   await blogObject.save()
 
-  blogObject = new Blog(initiaBlogs[1])
+  blogObject = new Blog(initialBlogs[1])
   await blogObject.save()
 })
 
@@ -40,7 +40,7 @@ test('blogs are returned as json', async () => {
 
 test('all blogs are returned', async () => {
   const response = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(initiaBlogs.length)
+  expect(response.body).toHaveLength(initialBlogs.length)
 })
 
 test('the unique identifier property of a blog post is named id', async () => {
@@ -66,8 +66,40 @@ test('a HTTP POST request to the /api/blogs url successfully creates a new blog 
 
   const titles = response.body.map(blog => blog.title)
 
-  expect(response.body).toHaveLength(initiaBlogs.length + 1)
+  expect(response.body).toHaveLength(initialBlogs.length + 1)
   expect(titles).toContain('NEW BLOG!')
+})
+
+test('if the likes property is missing from a request, it will default to the value 0', async () => {
+  const newBlog = {
+    title: 'ANOTHER NEW BLOG!',
+    author: 'Blogger 4',
+    url: 'www.anothernewblog.blogspot.com'
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+  // gets the added blog
+  expect(response.body[initialBlogs.length].likes).toBe(0)
+})
+
+test('if the title and url properties are missing, the backend responds with status code 400', async () => {
+  const newBlog = {
+    author: 'Blogger 5',
+    url: 'www.titleless.blogspot.com',
+    likes: 2
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
 })
 
 afterAll(() => {
