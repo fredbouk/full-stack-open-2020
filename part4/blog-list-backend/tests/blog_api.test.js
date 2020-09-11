@@ -102,6 +102,24 @@ test('if the title and url properties are missing, the backend responds with sta
     .expect('Content-Type', /application\/json/)
 })
 
+describe('deletion of a blog', () => {
+  test('succeeds with status code 204', async () => {
+    const response = await api.get('/api/blogs')
+    const blogToDelete = response.body[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+
+    const blogsAtEnd = await api.get('/api/blogs')
+
+    expect(blogsAtEnd.body).toHaveLength(
+      initialBlogs.length - 1
+    )
+  })
+})
+
+
 afterAll(() => {
   mongoose.connection.close()
 })
