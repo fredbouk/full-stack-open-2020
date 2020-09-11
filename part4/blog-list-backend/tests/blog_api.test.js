@@ -11,7 +11,7 @@ const initialBlogs = [
     title: 'Blog 1',
     author: 'Blogger 1',
     url: 'www.testblog1.blogspot.com',
-    likes: 10
+    likes: 10000
   },
   {
     title: 'Blog 2',
@@ -119,6 +119,16 @@ describe('deletion of a blog', () => {
   })
 })
 
+test('updating the amout of likes for a blog works ok', async () => {
+  const response = await api.get('/api/blogs')
+  const blogToUpdate = response.body[0]
+
+  const updatedBlog = await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send({ likes: 1 })
+
+  expect(updatedBlog.body.likes).toBe(1)
+})
 
 afterAll(() => {
   mongoose.connection.close()
