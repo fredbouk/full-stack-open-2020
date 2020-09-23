@@ -5,6 +5,7 @@ const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 const initialBlogs = [
   {
@@ -21,14 +22,43 @@ const initialBlogs = [
   }
 ]
 
+const createUser = async () => {
+  const newUser = {
+    name: 'Arto Hellas',
+    username: 'ahellas',
+    password: 'sekret'
+  }
+
+  await api
+    .post('/api/users')
+    .send(newUser)
+
+  const loggedInUser = await api
+    .post('/api/login')
+    .send({
+      username: newUser.username,
+      password: newUser.password
+    })
+  return loggedInUser
+}
+
+let user
+
 beforeEach(async () => {
+  await User.deleteMany({})
   await Blog.deleteMany({})
 
-  let blogObject = new Blog(initialBlogs[0])
-  await blogObject.save()
+  user = await createUser()
 
-  blogObject = new Blog(initialBlogs[1])
-  await blogObject.save()
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `bearer ${user.body.token}`)
+    .send(initialBlogs[0])
+
+  await api
+    .post('/api/blogs')
+    .set('Authorization', `bearer ${user.body.token}`)
+    .send(initialBlogs[1])
 })
 
 test('blogs are returned as json', async () => {
@@ -58,6 +88,7 @@ test('a HTTP POST request to the /api/blogs url successfully creates a new blog 
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${user.body.token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -70,6 +101,21 @@ test('a HTTP POST request to the /api/blogs url successfully creates a new blog 
   expect(titles).toContain('NEW BLOG!')
 })
 
+test('a HTTP POST request to the /api/blogs url fails if a token is not provided.', async () => {
+  const newBlog = {
+    title: 'Tokens!',
+    author: 'Tor',
+    url: 'www.tk.blogspot.com',
+    likes: 1
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(401)
+    .expect('Content-Type', /application\/json/)
+})
+
 test('if the likes property is missing from a request, it will default to the value 0', async () => {
   const newBlog = {
     title: 'ANOTHER NEW BLOG!',
@@ -79,6 +125,7 @@ test('if the likes property is missing from a request, it will default to the va
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${user.body.token}`)
     .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
@@ -97,18 +144,20 @@ test('if the title and url properties are missing, the backend responds with sta
 
   await api
     .post('/api/blogs')
+    .set('Authorization', `bearer ${user.body.token}`)
     .send(newBlog)
     .expect(400)
     .expect('Content-Type', /application\/json/)
 })
 
-describe('deletion of a blog', () => {
+describe('Deletion of a blog', () => {
   test('succeeds with status code 204', async () => {
     const response = await api.get('/api/blogs')
     const blogToDelete = response.body[0]
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `bearer ${user.body.token}`)
       .expect(204)
 
     const blogsAtEnd = await api.get('/api/blogs')
