@@ -8,6 +8,9 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -20,6 +23,7 @@ const App = () => {
     if (loggedOnUserJSON) {
       const user = JSON.parse(loggedOnUserJSON)
       setUser(user)
+      blogService.setToken(user.token)
     }
   }, [])
 
@@ -29,13 +33,28 @@ const App = () => {
     const user = await loginService.login({
       username, password
     })
+
     window.localStorage.setItem(
       'loggedOnUser', JSON.stringify(user)
     )
+
+    blogService.setToken(user.token)
     setUser(user)
-    console.log(user)
     setUsername('')
     setPassword('')
+  }
+
+  const handleCreate = async (event) => {
+    event.preventDefault()
+
+    const blog = await blogService.create({
+      title, author, url
+    })
+
+    setBlogs(blogs.concat(blog))
+    setTitle('')
+    setAuthor('')
+    setUrl('')
   }
 
   const logOut = () => {
@@ -81,10 +100,44 @@ const App = () => {
 
       <button onClick={() => logOut()}>Log out</button>
 
+      <h2>Create new</h2>
+
+      <form onSubmit={handleCreate}>
+        <div>
+          Title:
+          <input
+            type='text'
+            value={title}
+            name='Title'
+            onChange={({ target }) => setTitle(target.value)}
+          />
+        </div>
+        <div>
+          Author:
+          <input
+            type='text'
+            value={author}
+            name='Author'
+            onChange={({ target }) => setAuthor(target.value)}
+          />
+        </div>
+        <div>
+          Url:
+          <input
+            type='text'
+            value={url}
+            name='Url'
+            onChange={({ target }) => setUrl(target.value)}
+          />
+        </div>
+        <button type='submit'>Create</button>
+      </form>
+
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
-    </div>)
+    </div>
+  )
 }
 
 export default App
