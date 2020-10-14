@@ -66,6 +66,11 @@ const App = () => {
     }, 4000)
   }
 
+  const increaseLike = async (id, likeObject) => {
+    const updatedBlog = await blogService.update(id, likeObject)
+    setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog))
+  }
+
   const logOut = () => {
     window.localStorage.removeItem('loggedOnUser')
     setUser(null)
@@ -122,7 +127,7 @@ const App = () => {
       {blogForm()}
 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} increaseLike={increaseLike} />
       )}
     </div>
   )
