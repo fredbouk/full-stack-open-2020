@@ -71,6 +71,13 @@ const App = () => {
     setBlogs(blogs.map(blog => blog.id !== updatedBlog.id ? blog : updatedBlog))
   }
 
+  const deleteBlog = async blogToDel => {
+    if (window.confirm(`Remove blog: ${blogToDel.title} by ${blogToDel.author}?`)) {
+      await blogService.deleteBlog(blogToDel.id)
+      setBlogs(blogs.filter(blog => blog.id !== blogToDel.id))
+    }
+  }
+
   const logOut = () => {
     window.localStorage.removeItem('loggedOnUser')
     setUser(null)
@@ -127,7 +134,7 @@ const App = () => {
       {blogForm()}
 
       {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
-        <Blog key={blog.id} blog={blog} increaseLike={increaseLike} />
+        <Blog key={blog.id} blog={blog} increaseLike={increaseLike} loggedOnUser={user} deleteBlog={deleteBlog} />
       )}
     </div>
   )
