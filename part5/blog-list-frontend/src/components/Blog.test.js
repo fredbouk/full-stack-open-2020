@@ -9,7 +9,7 @@ test('renders blog title and author, hides url and number of likes by default', 
     title: 'React patterns',
     author: 'Michael Chan',
     url: 'https://reactpatterns.com/',
-    likes: '7',
+    likes: 7,
     user: {
       name: 'Matti Luukkainen'
     }
@@ -36,7 +36,7 @@ test('blogs url and number of like are shown when view button is clicked', () =>
     title: 'React patterns',
     author: 'Michael Chan',
     url: 'https://reactpatterns.com/',
-    likes: '7',
+    likes: 7,
     user: {
       name: 'Matti Luukkainen'
     }
@@ -53,10 +53,41 @@ test('blogs url and number of like are shown when view button is clicked', () =>
   const button = component.getByText('view')
   fireEvent.click(button)
 
-  component.debug()
-
   const fullView = component.container.querySelector('.fullView')
   expect(fullView).toHaveAttribute('style', '')
   expect(fullView).toHaveTextContent('https://reactpatterns.com/')
   expect(fullView).toHaveTextContent('7')
 })
+
+test('when like button is clicked twice, event handler is called twice', () => {
+  const blog = {
+    title: 'React patterns',
+    author: 'Michael Chan',
+    url: 'https://reactpatterns.com/',
+    likes: 7,
+    user: {
+      name: 'Matti Luukkainen'
+    }
+  }
+
+  const loggedOnUser = {
+    name: 'Matti Luukkakinen'
+  }
+
+  const mockHandler = jest.fn()
+
+  const component = render(
+    <Blog blog={blog} loggedOnUser={loggedOnUser} increaseLike={mockHandler} />
+  )
+
+  const button = component.getByText('like')
+  fireEvent.click(button)
+  fireEvent.click(button)
+
+  expect(mockHandler.mock.calls).toHaveLength(2)
+})
+
+/*
+Make a test which ensures that if the like button is clicked twice,
+the event handler the component received as props is called twice.
+*/
