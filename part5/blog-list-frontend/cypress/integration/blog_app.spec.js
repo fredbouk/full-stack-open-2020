@@ -61,8 +61,14 @@ describe('Blog app', function () {
         cy.createBlog({
           title: 'Testblog2',
           author: 'Testman2',
-          url: 'https://justfortest.com/',
-          likes: '1'
+          url: 'https://justfortest2.com/',
+          likes: '10'
+        })
+        cy.createBlog({
+          title: 'Testblog3',
+          author: 'Testman3',
+          url: 'https://justfortest3.com/',
+          likes: '100'
         })
       })
 
@@ -74,7 +80,7 @@ describe('Blog app', function () {
           .contains('like')
           .click()
           .get('#Testblog2-likes')
-          .should('contain', 2)
+          .should('contain', 11)
       })
 
       it('one of those can be deleted', function () {
@@ -85,6 +91,11 @@ describe('Blog app', function () {
           .contains('delete')
           .click()
         cy.get('html').should('not.contain', 'Testblog2')
+      })
+
+      it('blogs are ordered according to likes', function () {
+        cy.get('.likes:first').should('contain', 100)
+        cy.get('.likes:last').should('contain', 1)
       })
     })
   })
