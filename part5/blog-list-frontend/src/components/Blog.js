@@ -29,7 +29,7 @@ const Blog = ({ blog, increaseLike, loggedOnUser, deleteBlog }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div className='blog' style={blogStyle}>
       <div style={hideWhenVisible} className='compactView'>
         {blog.title} by {blog.author}
         <button onClick={toggleVisibility}>view</button>
